@@ -790,7 +790,7 @@
   }
 
   .bitiful-file-actions {
-    display: flex !important;
+    display: flex;
     gap: 4px;
   }
 

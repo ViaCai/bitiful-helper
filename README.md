@@ -1,5 +1,7 @@
 # 🌈 缤纷云助手 (Bitiful Helper)
 
+> A plugin for managing [Bitiful](https://www.bitiful.com/) cloud storage in Obsidian. Supports file browsing, drag-and-drop upload, image compression, watermark, capacity statistics, EXIF viewing, and bucket replication.
+
 > 在 Obsidian 中管理 [缤纷云](https://www.bitiful.com/) 存储，支持文件浏览、上传、图片压缩与水印、容量统计、EXIF 查看、存储桶复制等功能。
 
 ---
