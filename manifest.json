@@ -5,6 +5,6 @@
 	"minAppVersion": "0.15.0",
 	"description": "Manage Bitiful cloud storage with file browsing, upload, image compression, watermark, capacity statistics, and more.",
 	"author": "ViaCai",
-	"authorUrl": "",
+	"authorUrl": "https://github.com/ViaCai",
 	"isDesktopOnly": false
 }
