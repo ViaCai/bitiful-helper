@@ -1,9 +1,9 @@
 {
 	"id": "bitiful-helper",
-	"name": "缤纷云助手",
+	"name": "Bitiful Helper",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "管理缤纷云存储，支持文件浏览、上传、图片压缩与水印、容量统计等功能。",
+	"description": "Manage Bitiful cloud storage with file browsing, upload, image compression, watermark, capacity statistics, and more.",
 	"author": "ViaCai",
 	"authorUrl": "",
 	"isDesktopOnly": false
