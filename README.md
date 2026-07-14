@@ -23,7 +23,7 @@
   * 图片 → `!\[name](url)`
   * 视频 → `<video controls>`
   * 音频 → `<audio controls>`
-  * PDF → `\[📄 name](url)`
+  * PDF → `\[📄 name](url)`（obsidian好像不支持这种方式，看大家是否有可实现的方法）
 * 📝 **笔记反查** — 扫描当前笔记中的缤纷云图片，在侧边栏高亮定位
 
 \---
