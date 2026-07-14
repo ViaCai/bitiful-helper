@@ -1,0 +1,28 @@
+{
+	"name": "bitiful-helper",
+	"version": "1.0.0",
+	"description": "管理缤纷云存储，支持文件浏览、上传、图片压缩与水印、容量统计等功能。",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "node esbuild.config.mjs production",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": [
+		"obsidian",
+		"plugin",
+		"bitiful",
+		"s3",
+		"cloud-storage"
+	],
+	"author": "ViaCai",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"builtin-modules": "3.3.0",
+		"esbuild": "0.17.3",
+		"obsidian": "latest",
+		"tslib": "2.4.0",
+		"typescript": "5.0.0"
+	}
+}

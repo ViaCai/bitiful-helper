@@ -1,0 +1,19 @@
+# Obsidian
+.obsidian/
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+*.map
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

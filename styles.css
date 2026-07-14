@@ -1,0 +1,838 @@
+/* 缤纷云助手 - 样式文件 v3.0 */
+
+.bitiful-sidebar {
+  padding: 10px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* ===== 头部 ===== */
+.bitiful-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.bitiful-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-accent);
+}
+
+/* ===== 使用情况概览 ===== */
+.bitiful-usage {
+  margin-bottom: 10px;
+}
+
+.bitiful-usage-section {
+  margin-bottom: 12px;
+}
+
+.bitiful-usage-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-normal);
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.bitiful-usage-loading {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 8px;
+}
+
+/* 顶部卡片网格（参照官方控制台） */
+.bitiful-usage-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.bitiful-usage-card {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  padding: 12px;
+  transition: all 0.2s;
+}
+
+.bitiful-usage-card:hover {
+  border-color: var(--text-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.bitiful-usage-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bitiful-usage-card-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.bitiful-usage-card-icon {
+  font-size: 16px;
+}
+
+.bitiful-usage-card-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-normal);
+  line-height: 1.2;
+}
+
+.bitiful-usage-card-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ===== 容量分布 ===== */
+.bitiful-distribution-section {
+  margin-bottom: 12px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.bitiful-distribution-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-normal);
+  margin-bottom: 10px;
+}
+
+.bitiful-distribution-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.bitiful-type-dist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bitiful-dist-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.bitiful-dist-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bitiful-dist-name {
+  width: 40px;
+  color: var(--text-muted);
+}
+
+.bitiful-dist-percent {
+  width: 36px;
+  text-align: right;
+  color: var(--text-normal);
+  font-weight: 500;
+}
+
+.bitiful-dist-bar-container {
+  flex: 1;
+  height: 6px;
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bitiful-dist-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.bitiful-dist-size {
+  width: 50px;
+  text-align: right;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+/* 趋势图 */
+.bitiful-trend {
+  display: flex;
+  flex-direction: column;
+}
+
+.bitiful-trend-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.bitiful-trend-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 80px;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.bitiful-trend-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 4px;
+}
+
+.bitiful-trend-bar {
+  width: 100%;
+  background: var(--text-accent);
+  border-radius: 3px 3px 0 0;
+  min-height: 4px;
+  transition: height 0.3s ease;
+  opacity: 0.7;
+}
+
+.bitiful-trend-bar:hover {
+  opacity: 1;
+}
+
+.bitiful-trend-month {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.bitiful-trend-empty {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px;
+}
+
+/* ===== 最近文件 ===== */
+.bitiful-recent {
+  margin-bottom: 10px;
+}
+
+.bitiful-recent-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+
+.bitiful-recent-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.bitiful-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  font-size: 11px;
+  color: var(--text-normal);
+  cursor: pointer;
+  transition: all 0.15s;
+  max-width: 140px;
+}
+
+.bitiful-recent-item:hover {
+  background: var(--background-modifier-hover);
+  border-color: var(--text-accent);
+}
+
+.bitiful-recent-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== 搜索框 ===== */
+.bitiful-search-box {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.bitiful-search-box:focus {
+  outline: none;
+  border-color: var(--text-accent);
+}
+
+/* ===== 工具栏 ===== */
+.bitiful-toolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.bitiful-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bitiful-btn:hover {
+  background: var(--background-modifier-hover);
+  border-color: var(--text-accent);
+}
+
+.bitiful-btn.primary {
+  background: var(--text-accent);
+  color: white;
+  border-color: var(--text-accent);
+}
+
+.bitiful-btn.primary:hover {
+  opacity: 0.9;
+}
+
+.bitiful-btn.danger {
+  background: rgba(255, 82, 82, 0.15);
+  color: #ff5252;
+  border-color: rgba(255, 82, 82, 0.3);
+}
+
+.bitiful-btn.danger:hover {
+  background: #ff5252;
+  color: white;
+}
+
+.bitiful-btn.active {
+  background: var(--text-accent);
+  color: white;
+  border-color: var(--text-accent);
+}
+
+/* ===== 批量操作栏 ===== */
+.bitiful-batch-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.bitiful-batch-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-accent);
+  min-width: 60px;
+}
+
+/* ===== 面包屑 ===== */
+.bitiful-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.bitiful-breadcrumb-item {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.bitiful-breadcrumb-item:hover {
+  color: var(--text-accent);
+  background: var(--background-modifier-hover);
+}
+
+/* ===== 文件树 ===== */
+.bitiful-file-tree {
+  font-size: 13px;
+}
+
+.bitiful-folder {
+  margin-left: 0;
+}
+
+.bitiful-folder-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.bitiful-folder-header:hover {
+  background: var(--background-modifier-hover);
+}
+
+.bitiful-folder-icon {
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
+}
+
+.bitiful-folder-name {
+  flex: 1;
+  color: var(--text-normal);
+  font-weight: 500;
+}
+
+/* ===== 文件项 ===== */
+.bitiful-file-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.bitiful-file-item:hover {
+  background: var(--background-modifier-hover);
+}
+
+.bitiful-file-item.selected {
+  background: var(--background-modifier-accent);
+}
+
+.bitiful-file-item.highlighted {
+  background: rgba(var(--text-accent-rgb), 0.15);
+  border: 1px solid var(--text-accent);
+}
+
+.bitiful-file-checkbox {
+  margin: 0;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.bitiful-file-thumb {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 3px;
+  flex-shrink: 0;
+  cursor: zoom-in;
+  transition: transform 0.15s;
+}
+
+.bitiful-file-thumb:hover {
+  transform: scale(1.1);
+}
+
+.bitiful-file-icon {
+  font-size: 14px;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.bitiful-file-name {
+  flex: 1;
+  color: var(--text-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bitiful-file-path {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bitiful-file-actions {
+  display: none;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.bitiful-file-item:hover .bitiful-file-actions {
+  display: flex;
+}
+
+.bitiful-action-btn {
+  padding: 2px 6px;
+  font-size: 11px;
+  border: none;
+  border-radius: 3px;
+  background: var(--background-secondary);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.bitiful-action-btn:hover {
+  background: var(--text-accent);
+  color: white;
+}
+
+/* ===== 拖拽区域 ===== */
+.bitiful-drop-zone {
+  border: 2px dashed var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted);
+  margin: 10px 0;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.bitiful-drop-zone.drag-over {
+  border-color: var(--text-accent);
+  background: var(--background-modifier-accent);
+  color: var(--text-accent);
+}
+
+/* ===== 加载和空状态 ===== */
+.bitiful-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--text-muted);
+}
+
+.bitiful-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.bitiful-empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+/* ===== 设置面板 ===== */
+.bitiful-settings-section {
+  margin-bottom: 20px;
+}
+
+.bitiful-settings-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--text-accent);
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding-bottom: 6px;
+}
+
+.bitiful-setting-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.bitiful-test-result {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.bitiful-test-result.success {
+  background: rgba(0, 200, 83, 0.1);
+  color: #00c853;
+  border: 1px solid rgba(0, 200, 83, 0.3);
+}
+
+.bitiful-test-result.error {
+  background: rgba(255, 82, 82, 0.1);
+  color: #ff5252;
+  border: 1px solid rgba(255, 82, 82, 0.3);
+}
+
+/* ===== 图片预览弹窗 ===== */
+.bitiful-preview-modal .modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.bitiful-preview-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 90vw;
+  max-height: 80vh;
+}
+
+.bitiful-preview-container img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.bitiful-preview-info {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--text-normal);
+  text-align: center;
+}
+
+/* ===== EXIF 表格 ===== */
+.bitiful-exif-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.bitiful-exif-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.bitiful-exif-label {
+  color: var(--text-muted);
+  width: 120px;
+}
+
+.bitiful-exif-value {
+  color: var(--text-normal);
+}
+
+/* ===== 上传进度弹窗 ===== */
+.bitiful-upload-modal .modal-content {
+  padding: 16px;
+  min-width: 300px;
+}
+
+.bitiful-upload-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.bitiful-upload-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bitiful-upload-filename {
+  font-size: 12px;
+  color: var(--text-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bitiful-upload-percent {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  min-width: 30px;
+}
+
+.bitiful-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bitiful-progress-fill {
+  height: 100%;
+  background: var(--text-accent);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* ===== 复制桶弹窗表单 ===== */
+.bitiful-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.bitiful-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bitiful-form-row label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.bitiful-form-row input {
+  padding: 6px 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 13px;
+}
+
+.bitiful-modal-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.bitiful-modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.bitiful-modal-buttons button {
+  padding: 6px 16px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  cursor: pointer;
+}
+
+/* ===== 移动端适配 ===== */
+@media (max-width: 768px) {
+  .bitiful-sidebar {
+    padding: 8px;
+  }
+
+  .bitiful-header h3 {
+    font-size: 14px;
+  }
+
+  .bitiful-usage-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .bitiful-usage-card {
+    padding: 10px;
+  }
+
+  .bitiful-usage-card-value {
+    font-size: 16px;
+  }
+
+  .bitiful-distribution-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bitiful-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-height: 36px;
+  }
+
+  .bitiful-file-item {
+    padding: 6px 4px;
+    min-height: 40px;
+  }
+
+  .bitiful-file-icon,
+  .bitiful-file-thumb {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+
+  .bitiful-file-name {
+    font-size: 14px;
+  }
+
+  .bitiful-file-actions {
+    display: flex !important;
+    gap: 4px;
+  }
+
+  .bitiful-action-btn {
+    padding: 4px 8px;
+    font-size: 13px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .bitiful-drop-zone {
+    padding: 16px;
+    font-size: 14px;
+  }
+
+  .bitiful-search-box {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  .bitiful-breadcrumb {
+    font-size: 13px;
+  }
+
+  .bitiful-batch-bar {
+    padding: 6px;
+  }
+}
+
+.is-mobile .bitiful-file-item {
+  padding: 8px 6px;
+}
+
+.is-mobile .bitiful-folder-header {
+  padding: 8px 6px;
+}
+
+.is-mobile .bitiful-action-btn {
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.is-mobile .bitiful-usage-cards {
+  grid-template-columns: 1fr 1fr;
+}
