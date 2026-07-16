@@ -18,8 +18,6 @@ const DEFAULT_SETTINGS = {
     compressQuality: 80,
     linkTemplate: '![{{filename}}]({{url}})',
     maxRecentFiles: 10,
-    sortBy: 'name',
-    sortOrder: 'asc',
     // 水印设置
     enableWatermark: false,
     watermarkText: '',
@@ -326,18 +324,82 @@ class S3Client {
         return true;
     }
 
+    // 上传对象（用于创建空文件夹）
+    async putObject(key, body = '', contentType = 'application/octet-stream') {
+        // 使用 presigned URL 方式，避免签名复杂问题
+        const presignedUrl = await this.getPresignedUploadUrl(key, 3600);
+        const response = await fetch(presignedUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': contentType },
+            body: body || undefined
+        });
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`PutObject failed: ${response.status} ${text.substring(0, 200)}`);
+        }
+        return true;
+    }
+
+    // 创建文件夹（S3中文件夹是带尾部斜杠的0字节对象）
+    async createFolder(key) {
+        const folderKey = key.endsWith('/') ? key : key + '/';
+        // 使用 presigned URL 上传空内容创建文件夹
+        const presignedUrl = await this.getPresignedUploadUrl(folderKey, 3600);
+        const response = await fetch(presignedUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/x-directory' },
+            body: ''
+        });
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`Create folder failed: ${response.status} ${text.substring(0, 200)}`);
+        }
+        return true;
+    }
+
     // 复制对象到另一个存储桶
     async copyObject(sourceKey, targetBucket, targetKey) {
         const path = `/${targetBucket}/${this.awsUriEncode(targetKey).replace(/%2F/g, '/')}`;
+        const encodedSource = encodeURIComponent(sourceKey).replace(/%2F/g, '/');
         const headers = {
-            'x-amz-copy-source': `/${this.settings.bucket}/${sourceKey}`
+            'x-amz-copy-source': `/${this.settings.bucket}/${encodedSource}`
         };
         const { headers: signedHeaders } = await this.signRequest('PUT', path, {}, headers);
         const url = `${this.endpoint}${path}`;
 
         const response = await fetch(url, { method: 'PUT', headers: signedHeaders });
-        if (!response.ok) throw new Error(`Copy failed: ${response.status}`);
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`Copy failed: ${response.status} ${text.substring(0, 200)}`);
+        }
         return true;
+    }
+
+    // 重命名对象（同桶内复制+删除）
+    async renameObject(sourceKey, targetKey) {
+        // 先复制 - x-amz-copy-source 需要对特殊字符编码，但保留斜杠
+        const path = `/${this.settings.bucket}/${this.awsUriEncode(targetKey).replace(/%2F/g, '/')}`;
+        const encodedSource = encodeURIComponent(sourceKey).replace(/%2F/g, '/');
+        const headers = {
+            'x-amz-copy-source': `/${this.settings.bucket}/${encodedSource}`
+        };
+        const { headers: signedHeaders } = await this.signRequest('PUT', path, {}, headers);
+        const url = `${this.endpoint}${path}`;
+
+        const response = await fetch(url, { method: 'PUT', headers: signedHeaders });
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`Copy failed: ${response.status} ${text.substring(0, 200)}`);
+        }
+
+        // 再删除原文件
+        await this.deleteObject(sourceKey);
+        return true;
+    }
+
+    // 移动对象到指定路径（同桶内）
+    async moveObject(sourceKey, targetKey) {
+        return await this.renameObject(sourceKey, targetKey);
     }
 
     // 获取对象元数据（用于 EXIF）
@@ -561,6 +623,75 @@ class ImageProcessor {
             };
             reader.readAsArrayBuffer(file.slice(0, 65536));
         });
+    }
+}
+
+// ==================== 通用输入弹窗 ====================
+class InputModal extends Modal {
+    constructor(app, title, placeholder, defaultValue = '', onConfirm) {
+        super(app);
+        this.title = title;
+        this.placeholder = placeholder;
+        this.defaultValue = defaultValue;
+        this.onConfirm = onConfirm;
+    }
+
+    onOpen() {
+        const { contentEl } = this;
+        contentEl.empty();
+        contentEl.addClass('bitiful-input-modal');
+        this.titleEl.setText(this.title);
+
+        const form = contentEl.createDiv('bitiful-form');
+
+        const inputRow = form.createDiv('bitiful-form-row');
+        this.inputEl = inputRow.createEl('input', {
+            attr: {
+                type: 'text',
+                placeholder: this.placeholder,
+                value: this.defaultValue
+            }
+        });
+        this.inputEl.style.width = '100%';
+        this.inputEl.style.padding = '8px 12px';
+        this.inputEl.style.border = '1px solid var(--background-modifier-border)';
+        this.inputEl.style.borderRadius = '4px';
+        this.inputEl.style.background = 'var(--background-primary)';
+        this.inputEl.style.color = 'var(--text-normal)';
+        this.inputEl.style.fontSize = '14px';
+
+        setTimeout(() => this.inputEl.focus(), 50);
+
+        this.inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.confirm();
+            }
+        });
+
+        const btnContainer = contentEl.createDiv('bitiful-modal-buttons');
+        btnContainer.style.marginTop = '16px';
+
+        const cancelBtn = btnContainer.createEl('button', { text: '取消' });
+        cancelBtn.addEventListener('click', () => this.close());
+
+        const confirmBtn = btnContainer.createEl('button', {
+            text: '确认',
+            attr: { style: 'background: var(--text-accent); color: white;' }
+        });
+        confirmBtn.addEventListener('click', () => this.confirm());
+    }
+
+    confirm() {
+        const value = this.inputEl.value.trim();
+        if (value) {
+            this.onConfirm(value);
+        }
+        this.close();
+    }
+
+    onClose() {
+        const { contentEl } = this;
+        contentEl.empty();
     }
 }
 
@@ -1211,6 +1342,14 @@ class BitifulView extends ItemView {
         const header = this.containerEl.createDiv('bitiful-header');
         header.createEl('h3', { text: '🌈 缤纷云' });
 
+        // 连接状态指示器
+        this.connectionStatusEl = header.createEl('span', {
+            cls: 'bitiful-connection-status',
+            attr: { title: '点击测试连接' }
+        });
+        this.connectionStatusEl.setText('⚪');
+        this.connectionStatusEl.addEventListener('click', () => this.testConnection());
+
         const refreshBtn = header.createEl('button', { cls: 'bitiful-btn', text: '🔄' });
         refreshBtn.title = '刷新';
         refreshBtn.addEventListener('click', () => this.loadFiles());
@@ -1243,8 +1382,6 @@ class BitifulView extends ItemView {
         const newFolderBtn = toolbar.createEl('button', { cls: 'bitiful-btn', text: '📁 新建' });
         newFolderBtn.addEventListener('click', () => this.handleNewFolder());
 
-        const sortBtn = toolbar.createEl('button', { cls: 'bitiful-btn', text: '⇅ 排序' });
-        sortBtn.addEventListener('click', () => this.showSortMenu(sortBtn));
 
         const batchBtn = toolbar.createEl('button', { cls: 'bitiful-btn', text: '☐ 批量' });
         batchBtn.addEventListener('click', () => this.toggleBatchMode());
@@ -1567,104 +1704,7 @@ class BitifulView extends ItemView {
     }
 
     // ===== 排序菜单 =====
-    showSortMenu(targetEl) {
-        const menu = new Menu();
-        const sorts = [
-            { key: 'name', label: '名称' },
-            { key: 'size', label: '大小' },
-            { key: 'date', label: '修改时间' }
-        ];
 
-        sorts.forEach(sort => {
-            menu.addItem((item) => {
-                const isActive = this.plugin.settings.sortBy === sort.key;
-                item.setTitle(`${isActive ? '✓ ' : ''}按${sort.label}排序`);
-                item.onClick(async () => {
-                    this.plugin.settings.sortBy = sort.key;
-                    await this.plugin.saveSettings();
-                    this.renderFileTree();
-                });
-            });
-        });
-
-        menu.addSeparator();
-
-        menu.addItem((item) => {
-            const isAsc = this.plugin.settings.sortOrder === 'asc';
-            item.setTitle(`${isAsc ? '✓ ' : ''}升序`);
-            item.onClick(async () => {
-                this.plugin.settings.sortOrder = 'asc';
-                await this.plugin.saveSettings();
-                this.renderFileTree();
-            });
-        });
-
-        menu.addItem((item) => {
-            const isDesc = this.plugin.settings.sortOrder === 'desc';
-            item.setTitle(`${isDesc ? '✓ ' : ''}降序`);
-            item.onClick(async () => {
-                this.plugin.settings.sortOrder = 'desc';
-                await this.plugin.saveSettings();
-                this.renderFileTree();
-            });
-        });
-
-        menu.showAtMouseEvent({ target: targetEl });
-    }
-
-    // ===== 笔记内图片反查 =====
-    async scanNoteImages() {
-        const view = this.getActiveMarkdownView();
-        if (!view) {
-            new Notice('❌ 请先打开一个笔记');
-            return;
-        }
-
-        const content = view.editor.getValue();
-        const s3 = new S3Client(this.plugin.settings);
-        const baseUrl = s3.getPublicUrl('').replace(/\/$/, '');
-
-        const mdRegex = /!\[.*?\]\((.*?)\)/g;
-        const htmlRegex = /<img[^>]+src=["'](.*?)["']/g;
-
-        const urls = new Set();
-        let match;
-        while ((match = mdRegex.exec(content)) !== null) urls.add(match[1]);
-        while ((match = htmlRegex.exec(content)) !== null) urls.add(match[1]);
-
-        const bitifulUrls = Array.from(urls).filter(url => url.includes(baseUrl) || url.includes('s3.bitiful.net'));
-
-        if (bitifulUrls.length === 0) {
-            new Notice('当前笔记中没有找到缤纷云图片');
-            return;
-        }
-
-        const keys = bitifulUrls.map(url => {
-            try {
-                const u = new URL(url);
-                const parts = u.pathname.split('/');
-                return parts.slice(2).join('/');
-            } catch {
-                return null;
-            }
-        }).filter(Boolean);
-
-        this.highlightFiles(keys);
-        new Notice(`🔍 找到 ${keys.length} 个缤纷云图片，已在侧边栏高亮`);
-    }
-
-    highlightFiles(keys) {
-        const fileItems = this.treeContainer.querySelectorAll('.bitiful-file-item');
-        fileItems.forEach(item => {
-            const path = item.getAttribute('data-path');
-            if (keys.includes(path)) {
-                item.addClass('highlighted');
-                item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else {
-                item.removeClass('highlighted');
-            }
-        });
-    }
 
     renderBreadcrumb() {
         this.breadcrumbEl.empty();
@@ -1684,6 +1724,26 @@ class BitifulView extends ItemView {
         });
     }
 
+    // ===== 连接状态测试 =====
+    async testConnection() {
+        this.connectionStatusEl.setText('🟡');
+        this.connectionStatusEl.setAttribute('title', '测试中...');
+
+        try {
+            const s3 = new S3Client(this.plugin.settings);
+            await s3.listObjects('', '/', 1);
+            this.connectionStatusEl.setText('🟢');
+            this.connectionStatusEl.setAttribute('title', '连接正常');
+            this.connectionStatusEl.addClass('connected');
+            this.connectionStatusEl.removeClass('disconnected');
+        } catch (e) {
+            this.connectionStatusEl.setText('🔴');
+            this.connectionStatusEl.setAttribute('title', `连接失败: ${e.message}`);
+            this.connectionStatusEl.addClass('disconnected');
+            this.connectionStatusEl.removeClass('connected');
+        }
+    }
+
     // ===== 加载文件 + 统计 =====
     async loadFiles() {
         if (!this.treeContainer) return;
@@ -1695,6 +1755,14 @@ class BitifulView extends ItemView {
             const s3 = new S3Client(this.plugin.settings);
             const { prefixes, contents } = await s3.listObjects(this.currentPrefix);
             this.apiCallCount++;
+
+            // 更新连接状态为正常
+            if (this.connectionStatusEl) {
+                this.connectionStatusEl.setText('🟢');
+                this.connectionStatusEl.setAttribute('title', '连接正常');
+                this.connectionStatusEl.addClass('connected');
+                this.connectionStatusEl.removeClass('disconnected');
+            }
 
             this.fileTree = [];
 
@@ -1731,6 +1799,13 @@ class BitifulView extends ItemView {
                 this.loadAllFilesAndStats();
             }
         } catch (e) {
+            // 更新连接状态为失败
+            if (this.connectionStatusEl) {
+                this.connectionStatusEl.setText('🔴');
+                this.connectionStatusEl.setAttribute('title', `连接失败: ${e.message}`);
+                this.connectionStatusEl.addClass('disconnected');
+                this.connectionStatusEl.removeClass('connected');
+            }
             this.treeContainer.empty();
             const errDiv = this.treeContainer.createEl('div', { cls: 'bitiful-empty' });
             errDiv.innerHTML = `<div class="bitiful-empty-icon">❌</div><p>加载失败</p><p style="font-size:12px;color:var(--text-muted)">${e.message}</p>`;
@@ -1835,23 +1910,9 @@ class BitifulView extends ItemView {
             return;
         }
 
-        const sortBy = this.plugin.settings.sortBy;
-        const sortOrder = this.plugin.settings.sortOrder;
-        const multiplier = sortOrder === 'asc' ? 1 : -1;
-
         const sorted = [...this.fileTree].sort((a, b) => {
             if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
-
-            if (sortBy === 'name') {
-                return a.name.localeCompare(b.name) * multiplier;
-            } else if (sortBy === 'size') {
-                return (a.size - b.size) * multiplier;
-            } else if (sortBy === 'date') {
-                const da = a.lastModified ? new Date(a.lastModified).getTime() : 0;
-                const db = b.lastModified ? new Date(b.lastModified).getTime() : 0;
-                return (da - db) * multiplier;
-            }
-            return 0;
+            return a.name.localeCompare(b.name);
         });
 
         sorted.forEach(item => {
@@ -1885,6 +1946,133 @@ class BitifulView extends ItemView {
         header.createEl('span', { cls: 'bitiful-folder-icon', text: '📁' });
         header.createEl('span', { cls: 'bitiful-folder-name', text: folder.name });
         header.addEventListener('click', () => this.navigateTo(folder.path));
+        header.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.showFolderContextMenu(e, folder);
+        });
+    }
+
+    // 文件夹右键菜单
+    showFolderContextMenu(event, folder) {
+        const menu = new Menu();
+
+        menu.addItem((item) => {
+            item.setTitle('📂 打开文件夹');
+            item.setIcon('folder-open');
+            item.onClick(() => this.navigateTo(folder.path));
+        });
+
+        menu.addItem((item) => {
+            item.setTitle('✏️ 重命名');
+            item.setIcon('pencil');
+            item.onClick(() => this.renameFolder(folder));
+        });
+
+        menu.addSeparator();
+
+        menu.addItem((item) => {
+            item.setTitle('🗑️ 删除文件夹');
+            item.setIcon('trash');
+            item.onClick(() => this.deleteFolder(folder));
+        });
+
+        menu.showAtMouseEvent(event);
+    }
+
+    // 重命名文件夹
+    async renameFolder(folder) {
+        const modal = new InputModal(
+            this.app,
+            '✏️ 重命名文件夹',
+            '请输入新文件夹名称',
+            folder.name,
+            async (newName) => {
+                if (!newName || newName === folder.name) return;
+
+                const sanitized = newName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_\-\.]/g, '-');
+                if (!sanitized) {
+                    new Notice('❌ 文件夹名称无效');
+                    return;
+                }
+
+                const dir = folder.path.substring(0, folder.path.lastIndexOf(folder.name));
+                const newPath = dir + sanitized + '/';
+
+                try {
+                    const s3 = new S3Client(this.plugin.settings);
+                    // S3不支持直接重命名文件夹，需要列出所有文件后逐个移动
+                    const allFiles = await s3.listAllObjects();
+                    const folderFiles = allFiles.filter(f => f.key.startsWith(folder.path));
+
+                    if (folderFiles.length === 0) {
+                        // 空文件夹，创建新的，删除旧的
+                        await s3.createFolder(newPath);
+                        await s3.deleteObject(folder.path);
+                    } else {
+                        // 有文件的文件夹，逐个移动
+                        for (const file of folderFiles) {
+                            const relativePath = file.key.substring(folder.path.length);
+                            const newKey = newPath + relativePath;
+                            await s3.moveObject(file.key, newKey);
+                        }
+                    }
+
+                    new Notice(`✅ 文件夹重命名成功: ${sanitized}`);
+                    await this.loadFiles();
+                } catch (e) {
+                    new Notice(`❌ 重命名文件夹失败: ${e.message}`);
+                }
+            }
+        );
+        modal.open();
+    }
+
+    // 删除文件夹
+    async deleteFolder(folder) {
+        const modal = new Modal(this.app);
+        modal.titleEl.setText('确认删除文件夹');
+        modal.contentEl.setText(`确定要删除文件夹 "${folder.name}" 吗？文件夹内的所有文件将被删除，此操作不可恢复。`);
+
+        const btnContainer = modal.contentEl.createDiv();
+        btnContainer.style.cssText = 'display: flex; gap: 10px; margin-top: 20px;';
+
+        const cancelBtn = btnContainer.createEl('button', { text: '取消' });
+        cancelBtn.addEventListener('click', () => modal.close());
+
+        const confirmBtn = btnContainer.createEl('button', { text: '删除', attr: { style: 'background: #ff5252; color: white;' } });
+        confirmBtn.addEventListener('click', async () => {
+            modal.close();
+            try {
+                const s3 = new S3Client(this.plugin.settings);
+                // 列出文件夹内所有文件并删除
+                const allFiles = await s3.listAllObjects();
+                const folderFiles = allFiles.filter(f => f.key.startsWith(folder.path));
+
+                let success = 0;
+                for (const file of folderFiles) {
+                    try {
+                        await s3.deleteObject(file.key);
+                        success++;
+                    } catch (e) {
+                        console.error(`删除失败 ${file.key}:`, e);
+                    }
+                }
+
+                // 删除文件夹标记本身
+                try {
+                    await s3.deleteObject(folder.path);
+                } catch (e) {
+                    // 文件夹标记可能不存在，忽略错误
+                }
+
+                new Notice(`🗑️ 已删除文件夹: ${folder.name} (${success} 个文件)`);
+                await this.loadFiles();
+            } catch (e) {
+                new Notice(`❌ 删除文件夹失败: ${e.message}`);
+            }
+        });
+
+        modal.open();
     }
 
     renderFile(file) {
@@ -2107,6 +2295,18 @@ class BitifulView extends ItemView {
             });
         }
 
+        menu.addItem((item) => {
+            item.setTitle('✏️ 重命名');
+            item.setIcon('pencil');
+            item.onClick(() => this.renameFile(file));
+        });
+
+        menu.addItem((item) => {
+            item.setTitle('📂 移动到...');
+            item.setIcon('folder');
+            item.onClick(() => this.moveFile(file));
+        });
+
         menu.addSeparator();
 
         menu.addItem((item) => {
@@ -2116,6 +2316,69 @@ class BitifulView extends ItemView {
         });
 
         menu.showAtMouseEvent(event);
+    }
+
+    // 重命名文件
+    async renameFile(file) {
+        const modal = new InputModal(
+            this.app,
+            '✏️ 重命名文件',
+            '请输入新文件名',
+            file.name,
+            async (newName) => {
+                if (!newName || newName === file.name) return;
+
+                // 验证文件名
+                const sanitized = newName.replace(/[\\/:*?"<>|]/g, '-');
+                if (!sanitized) {
+                    new Notice('❌ 文件名无效');
+                    return;
+                }
+
+                const dir = file.path.substring(0, file.path.lastIndexOf('/') + 1);
+                const newKey = dir + sanitized;
+
+                try {
+                    const s3 = new S3Client(this.plugin.settings);
+                    await s3.renameObject(file.path, newKey);
+                    new Notice(`✅ 重命名成功: ${sanitized}`);
+                    await this.loadFiles();
+                } catch (e) {
+                    new Notice(`❌ 重命名失败: ${e.message}`);
+                }
+            }
+        );
+        modal.open();
+    }
+
+    // 移动文件
+    async moveFile(file) {
+        const modal = new InputModal(
+            this.app,
+            '📂 移动文件',
+            '请输入目标路径（如: images/ 或 images/new.jpg）',
+            this.currentPrefix,
+            async (targetPath) => {
+                if (!targetPath) return;
+
+                let targetKey = targetPath;
+                // 如果以/结尾或是纯目录路径，保留原文件名
+                if (targetPath.endsWith('/') || !targetPath.includes('.')) {
+                    if (!targetPath.endsWith('/')) targetKey += '/';
+                    targetKey += file.name;
+                }
+
+                try {
+                    const s3 = new S3Client(this.plugin.settings);
+                    await s3.moveObject(file.path, targetKey);
+                    new Notice(`✅ 移动成功: ${targetKey}`);
+                    await this.loadFiles();
+                } catch (e) {
+                    new Notice(`❌ 移动失败: ${e.message}`);
+                }
+            }
+        );
+        modal.open();
     }
 
     async deleteFile(file) {
@@ -2487,10 +2750,32 @@ class BitifulView extends ItemView {
         return mimeTypes[ext] || 'application/octet-stream';
     }
 
-    handleNewFolder() {
-        const folderName = prompt('请输入文件夹名称:', 'new-folder');
-        if (!folderName) return;
-        new Notice(`📁 创建文件夹: ${folderName}（功能开发中）`);
+    async handleNewFolder() {
+        const modal = new InputModal(
+            this.app,
+            '📁 新建文件夹',
+            '请输入文件夹名称',
+            'new-folder',
+            async (folderName) => {
+                // 验证文件夹名
+                const sanitized = folderName.replace(/[^a-zA-Z0-9一-龥_\-\.]/g, '-');
+                if (!sanitized) {
+                    new Notice('❌ 文件夹名称无效');
+                    return;
+                }
+
+                const key = this.currentPrefix + sanitized;
+                try {
+                    const s3 = new S3Client(this.plugin.settings);
+                    await s3.createFolder(key);
+                    new Notice(`✅ 文件夹创建成功: ${sanitized}`);
+                    await this.loadFiles();
+                } catch (e) {
+                    new Notice(`❌ 创建文件夹失败: ${e.message}`);
+                }
+            }
+        );
+        modal.open();
     }
 }
 
@@ -2515,17 +2800,6 @@ module.exports = class BitifulPlugin extends Plugin {
             id: 'upload-files',
             name: '上传文件到缤纷云',
             callback: () => this.uploadFileCommand()
-        });
-
-        this.addCommand({
-            id: 'scan-note-images',
-            name: '反查笔记中的缤纷云图片',
-            callback: () => {
-                const view = this.app.workspace.getLeavesOfType(VIEW_TYPE_BITIFUL)[0]?.view;
-                if (view && view.scanNoteImages) {
-                    view.scanNoteImages();
-                }
-            }
         });
 
         this.addSettingTab(new BitifulSettingTab(this.app, this));

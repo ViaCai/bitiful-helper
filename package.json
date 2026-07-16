@@ -1,7 +1,7 @@
 {
 	"name": "bitiful-helper",
-	"version": "1.0.0",
-	"description": "管理缤纷云存储，支持文件浏览、上传、图片压缩与水印、容量统计等功能。",
+	"version": "1.1.0",
+	"description": "管理缤纷云存储，支持文件浏览、上传、图片压缩与水印、容量统计、文件夹操作、文件重命名/移动、连接状态显示等功能。",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

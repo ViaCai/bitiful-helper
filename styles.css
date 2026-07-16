@@ -435,10 +435,6 @@
   background: var(--background-modifier-accent);
 }
 
-.bitiful-file-item.highlighted {
-  background: rgba(var(--text-accent-rgb), 0.15);
-  border: 1px solid var(--text-accent);
-}
 
 .bitiful-file-checkbox {
   margin: 0;
@@ -836,3 +832,28 @@
 .is-mobile .bitiful-usage-cards {
   grid-template-columns: 1fr 1fr;
 }
+
+/* ===== 连接状态指示器 ===== */
+.bitiful-connection-status {
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: 4px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.bitiful-connection-status:hover {
+  background: var(--background-modifier-hover);
+}
+
+.bitiful-connection-status.connected {
+  filter: drop-shadow(0 0 2px rgba(0, 200, 83, 0.5));
+}
+
+.bitiful-connection-status.disconnected {
+  filter: drop-shadow(0 0 2px rgba(255, 82, 82, 0.5));
+}
+

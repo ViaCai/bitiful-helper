@@ -26,6 +26,17 @@
 
 ---
 
+## 📋 更新日志
+
+### v1.1.0 (2026-07-16)
+- ✨ **新增文件夹操作**：右键文件夹支持打开、重命名、删除
+- ✨ **新增文件重命名/移动**：右键文件支持重命名和移动到其他路径
+- ✨ **新增连接状态显示**：侧边栏标题旁实时显示连接状态（🟢正常/🔴失败）
+- 🗑️ **删除文件排序功能**：简化界面，文件默认按名称排序
+- 🗑️ **删除笔记反查高亮功能**：移除该实验性功能
+- 🐛 **修复新建文件夹**：使用 Modal 弹窗替代 prompt，解决 Electron 兼容问题
+- 🐛 **修复 S3 API**：修复 x-amz-copy-source 编码问题，重命名/移动/复制更稳定
+
 ## ✨ 插件功能
 
 - 📂 **文件浏览器** — 侧边栏浏览缤纷云存储桶，支持文件夹导航
@@ -40,28 +51,31 @@
 - 🔗 **智能链接** — 根据文件类型自动生成正确的 Markdown 语法
   - 图片 → `![name](url)`
   - 视频 → `<video controls>`
- - 音频 → `<audio controls>`
-  - PDF → `[📄 name](url)`
-- 📝 **笔记反查** — 扫描当前笔记中的缤纷云图片，在侧边栏高亮定位
+  - 音频 → `<audio controls>`
+  - PDF → `[📄 name](url)`（这个目前实现不了，应该是obsidian本身不支持，不知道大家是否有更好的方式）
+
 
 ---
 
 ## 📦 安装
 
-### 方式一：手动安装（推荐当前使用）
+### 方式一：社区安装（推荐当前使用）
+
+社区插件市场中，搜索Bitiful Helper安装。
+
+### 方式二：手动安装
 
 1. 下载最新版本的 `main.js`、`styles.css`、`manifest.json`
 2. 放到 Obsidian 仓库目录 `.obsidian/plugins/bitiful-helper/` 下
 3. 在 Obsidian 设置 → 第三方插件中启用「缤纷云助手」
 
-### 方式二：BRAT 安装
+### 方式三：BRAT 安装
 
 1. 安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat) 插件
 2. 命令面板 → **BRAT: Add Beta plugin**
 3. 输入 `https://github.com/ViaCai/bitiful-helper`
 4. 安装完成后在第三方插件里启用
 
-> 💡 社区插件市场审核中，审核通过后可直接在「浏览」中搜索安装。
 
 ---
 
@@ -205,6 +219,6 @@ npm run build
 
 > 本插件为第三方社区作品，与缤纷云官方无直接关联。
 
-## ☕ 支持我
+## ☕ 如果觉得这款插件对您有帮助，也可以请我喝杯咖啡
 
-![微信收款码](images/wechat-pay.png)
+<img src="images/wechat-pay.png" alt="微信收款码" width="240" />

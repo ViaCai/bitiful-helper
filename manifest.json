@@ -1,9 +1,9 @@
 {
 	"id": "bitiful-helper",
 	"name": "Bitiful Helper",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "Manage Bitiful cloud storage with file browsing, upload, image compression, watermark, capacity statistics, and more.",
+	"description": "Manage Bitiful cloud storage with file browsing, upload, image compression, watermark, capacity statistics, folder operations, file rename/move, connection status, and more.",
 	"author": "ViaCai",
 	"authorUrl": "https://github.com/ViaCai",
 	"isDesktopOnly": false
